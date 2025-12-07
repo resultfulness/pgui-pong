@@ -1,0 +1,15 @@
+export const
+    GAME_TIME = 5 * 60,
+
+    BOARD_WIDTH = 800,
+    BOARD_HEIGHT = 600,
+    BOARD_GOAL_SIZE = 200,
+
+    BALL_SIZE = 32,
+    BALL_SPEED = 128,
+
+    PADDLE_WIDTH = 16,
+    PADDLE_HEIGHT = 100,
+    PADDLE_GOAL_OFFSET = 32,
+    PADDLE_SPEED = 300;
+

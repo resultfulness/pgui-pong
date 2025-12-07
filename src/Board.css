@@ -1,0 +1,26 @@
+.board {
+    display: grid;
+    grid-template-columns: 1fr 4px 1fr;
+    grid-template-rows: auto auto auto;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    --_border-outer: 2px solid black;
+    --_border-inner: 4px dotted gray;
+
+    position: relative;
+}
+
+.board-divider {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    border-left: var(--_border-inner);
+}
+
+.board-cell-l {
+    border-left: var(--_border-outer);
+}
+
+.board-cell-r {
+    border-right: var(--_border-outer);
+}
+
