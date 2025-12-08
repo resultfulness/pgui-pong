@@ -1,8 +1,8 @@
 export const
     GAME_TIME = 5 * 60,
 
-    BOARD_WIDTH = 800,
-    BOARD_HEIGHT = 600,
+    BOARD_WIDTH = 640,
+    BOARD_HEIGHT = 480,
     BOARD_GOAL_SIZE = 200,
 
     BALL_SIZE = 32,

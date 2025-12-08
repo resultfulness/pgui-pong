@@ -1,4 +1,5 @@
-import { PADDLE_GOAL_OFFSET, PADDLE_HEIGHT, PADDLE_WIDTH } from "./config";
+import "./Paddle.css";
+import { PADDLE_GOAL_OFFSET, PADDLE_HEIGHT, PADDLE_WIDTH } from "../../config";
 
 interface PaddleProps {
     pos: number;

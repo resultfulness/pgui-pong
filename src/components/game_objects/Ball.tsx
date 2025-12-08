@@ -1,4 +1,5 @@
-import { BALL_SIZE } from "./config";
+import "./Ball.css";
+import { BALL_SIZE } from "../../config";
 
 interface BallProps {
     x: number;

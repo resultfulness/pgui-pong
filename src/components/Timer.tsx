@@ -1,3 +1,4 @@
+import "./Timer.css";
 import { useEffect } from "react";
 
 interface TimerProps {

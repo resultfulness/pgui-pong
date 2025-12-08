@@ -1,6 +1,6 @@
 import "./Board.css";
 import type { ReactNode } from "react";
-import { BOARD_GOAL_SIZE, BOARD_HEIGHT, BOARD_WIDTH } from "./config";
+import { BOARD_GOAL_SIZE, BOARD_HEIGHT, BOARD_WIDTH } from "../config";
 
 export default function Board({ children }: { children: ReactNode }) {
     return <div
