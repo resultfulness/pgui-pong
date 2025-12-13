@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
-export default function useKeys() {
-    const [keys, setkeys] = useState<Record<string, boolean>>({});
+export default function useKeys(keys: string[]) {
+    const [keysMap, setKeysMap] = useState<Record<string, boolean>>({});
     function updatekeys(ev: KeyboardEvent) {
         const k = ev.code;
-        if (/^Key[QAPL]/.test(k)) {
+        if (keys.includes(k)) {
             ev.preventDefault();
-            setkeys(prev => {
+            setKeysMap(prev => {
                 const final = prev;
                 final[k] = ev.type === "keydown";
                 return final;
@@ -24,5 +24,5 @@ export default function useKeys() {
         }
     }, []);
 
-    return keys
+    return keysMap
 }
