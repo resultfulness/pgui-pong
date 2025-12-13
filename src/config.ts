@@ -6,10 +6,10 @@ export const
     BOARD_GOAL_SIZE = 200,
 
     BALL_SIZE = 32,
-    BALL_SPEED = 128,
+    BALL_SPEED = 512,
 
     PADDLE_WIDTH = 16,
     PADDLE_HEIGHT = 100,
     PADDLE_GOAL_OFFSET = 32,
-    PADDLE_SPEED = 300;
+    PADDLE_SPEED = 384;
 

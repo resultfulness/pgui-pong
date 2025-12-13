@@ -10,85 +10,114 @@ import useKeys from "./hooks/use-keys";
 import { GAME_TIME } from "./config";
 import {
     checkBallGoalColision,
-    checkBallPaddleCollision
+    checkBallPaddleCollision,
+    checkBallWallXCollision,
+    checkBallWallYCollision
 } from "./collision-handlers";
 
 export default function Game() {
     const [time, settime] = useState(GAME_TIME);
-    const [pause, setpause] = useState(true);
+    const pauseref = useRef(true);
 
-    const { ball, resetball, updateball, bounceball } = useBall();
+    const { ballref, resetball, updateball, xbounceball, ybounceball } = useBall();
     const left = usePaddle();
     const right = usePaddle();
 
-    useEffect(() => {
-        if (checkBallPaddleCollision(Player.RIGHT, right.pos, ball)) {
-            bounceball(Player.RIGHT);
-        }
-    }, [ball, right]);
-
-    useEffect(() => {
-        if (checkBallPaddleCollision(Player.LEFT, left.pos, ball)) {
-            bounceball(Player.LEFT);
-        }
-    }, [ball, left]);
-
-    useEffect(() => {
-        const scored = checkBallGoalColision(ball);
-        if (scored) {
-            if (scored === Player.LEFT) {
-                left.onScored();
-            } else {
-                right.onScored();
-            }
-            resetball();
-        }
-    }, [ball]);
+    const [, rerender] = useState(0);
 
     const keys = useKeys(["KeyQ", "KeyA", "KeyP", "KeyL"] as const);
 
-    function update(time: number) {
-        if (pause) {
-            previousTime.current = undefined;
-            return;
-        }
-        let delta = 0;
-        if (previousTime.current !== undefined) {
-            delta = (time - previousTime.current) * 0.001;
-        }
-
-        if (keys.KeyQ) left.move("up", delta);
-        if (keys.KeyA) left.move("down", delta);
-        if (keys.KeyP) right.move("up", delta);
-        if (keys.KeyL) right.move("down", delta);
-
-        updateball(delta);
-
-        previousTime.current = time;
-        animationRequestID.current = requestAnimationFrame(update);
-    }
-
-    const animationRequestID = useRef(0);
-    const previousTime = useRef<number | undefined>(undefined);
+    const previousTimeRef = useRef<number | undefined>(undefined);
 
     useEffect(() => {
-        animationRequestID.current = requestAnimationFrame(update);
-        return () => cancelAnimationFrame(animationRequestID.current);
-    }, [pause]);
+        let animationId: number;
+
+        function update(time: number) {
+            if (pauseref.current) {
+                previousTimeRef.current = undefined;
+                animationId = requestAnimationFrame(update);
+                return;
+            }
+
+            let delta = 0;
+            if (previousTimeRef.current !== undefined) {
+                delta = (time - previousTimeRef.current) * 0.001;
+            }
+
+            if (keys.current.KeyQ) left.move("up", delta);
+            if (keys.current.KeyA) left.move("down", delta);
+            if (keys.current.KeyP) right.move("up", delta);
+            if (keys.current.KeyL) right.move("down", delta);
+
+            updateball(delta);
+
+            const scored = checkBallGoalColision(ballref.current);
+            if (scored) {
+                if (scored === Player.LEFT) {
+                    left.onScored();
+                } else {
+                    right.onScored();
+                }
+                resetball(scored);
+            }
+
+            if (checkBallWallXCollision(ballref.current.x)) {
+                xbounceball();
+            }
+
+            if (checkBallWallYCollision(ballref.current.y)) {
+                ybounceball();
+            }
+
+            if (
+                checkBallPaddleCollision(
+                    Player.RIGHT,
+                    right.posref.current,
+                    ballref.current,
+                )
+            ) {
+                xbounceball();
+            }
+
+            if (
+                checkBallPaddleCollision(
+                    Player.LEFT,
+                    left.posref.current,
+                    ballref.current,
+                )
+            ) {
+                xbounceball();
+            }
+
+            previousTimeRef.current = time;
+
+            rerender(r => r + 1);
+
+            animationId = requestAnimationFrame(update);
+        }
+
+        animationId = requestAnimationFrame(update);
+        return () => cancelAnimationFrame(animationId);
+    }, []);
+
+    function togglePause() {
+        pauseref.current = !pauseref.current;
+        rerender(r => r + 1);
+    }
 
     return <div className="game">
-        <Timer time={time} settime={settime} paused={pause} />
+        <Timer time={time} settime={settime} paused={pauseref.current} />
         <Board>
-            <Ball x={ball.x} y={ball.y} />
-            <Paddle pos={left.pos} side="left" />
-            <Paddle pos={right.pos} side="right" />
+            <Ball x={ballref.current.x} y={ballref.current.y} />
+            <Paddle pos={left.posref.current} side="left" />
+            <Paddle pos={right.posref.current} side="right" />
         </Board>
         <Controls
-            handlePause={() => setpause(prev => !prev)}
+            handlePause={() => togglePause()}
             handleRestart={() => window.location.reload()}
-            paused={pause}
-            leftScore={left.score}
-            rightScore={right.score}
+            paused={pauseref.current}
+            leftScore={left.scoreref.current}
+            rightScore={right.scoreref.current}
         />
     </div>;
 }

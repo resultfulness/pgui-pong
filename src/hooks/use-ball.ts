@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { BOARD_WIDTH, BALL_SIZE, BOARD_HEIGHT, BALL_SPEED } from "../config";
-import type { Player } from "./use-paddle";
-import { checkBallWallXCollision, checkBallWallYCollision } from "../collision-handlers";
+import { Player } from "./use-paddle";
 
 export type BallData = {
     x: number,
@@ -10,39 +9,58 @@ export type BallData = {
     vy: number,
 };
 
+function randomizeDirection() {
+    let angle: number;
+    if (Math.random() < 0.5) {
+        angle = (-Math.PI / 6) + Math.random() * (Math.PI / 3);
+    } else {
+        angle = (5 * Math.PI / 6) + Math.random() * (Math.PI / 3);
+    }
+
+    return {
+        vx: Math.cos(angle) * BALL_SPEED,
+        vy: Math.sin(angle) * BALL_SPEED,
+    }
+}
+
 export default function useBall() {
-    const [ball, setball] = useState<BallData>({
+    const { vx, vy } = randomizeDirection();
+
+    const ballref = useRef<BallData>({
         x: BOARD_WIDTH / 2 - BALL_SIZE / 2,
         y: BOARD_HEIGHT / 2 - BALL_SIZE / 2,
-        vx: 1,
-        vy: 0,
+        vx,
+        vy,
     });
 
-    function resetball() {
-        setball(prev => ({
-            ...prev,
+    function resetball(server: Player) {
+        const { vx, vy } = randomizeDirection();
+        let mvx = server * vx;
+        if (mvx < 0) {
+            mvx *= -1;
+        }
+
+        ballref.current = {
             x: BOARD_WIDTH / 2 - BALL_SIZE / 2,
             y: BOARD_HEIGHT / 2 - BALL_SIZE / 2,
-        }));
+            vx: mvx,
+            vy,
+        }
     }
 
     function updateball(delta: number) {
-        setball(({ x, y, vx, vy }) => {
-            if (checkBallWallXCollision(x)) vx = -vx;
-            if (checkBallWallYCollision(y)) vy = -vy;
-            x = x + BALL_SPEED * vx * delta;
-            y = y + BALL_SPEED * vy * delta;
-            return { x, y, vx, vy };
-        });
+        ballref.current.x += ballref.current.vx * delta;
+        ballref.current.y += ballref.current.vy * delta;
     }
 
-    function bounceball(from: Player) {
-        setball(prev => ({
-            ...prev,
-            x: prev.x + BALL_SPEED * 0.01 * from,
-            vx: -prev.vx,
-        }));
+    function xbounceball() {
+        ballref.current.vx = -ballref.current.vx;
+        ballref.current.x += 0.01 * ballref.current.vx;
     }
 
-    return { ball, resetball, updateball, bounceball };
+    function ybounceball() {
+        ballref.current.vy = -ballref.current.vy;
+    }
+
+    return { ballref, resetball, updateball, xbounceball, ybounceball };
 }

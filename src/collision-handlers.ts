@@ -1,4 +1,3 @@
-import type React from "react";
 import { PADDLE_HEIGHT, PADDLE_GOAL_OFFSET, PADDLE_WIDTH, BOARD_WIDTH, BALL_SIZE, BALL_SPEED, BOARD_HEIGHT, BOARD_GOAL_SIZE } from "./config";
 import type { BallData } from "./hooks/use-ball";
 import { Player } from "./hooks/use-paddle";
@@ -16,9 +15,9 @@ export function checkBallPaddleCollision(
     const ballXBehindRightPaddle =
         x >= (BOARD_WIDTH - PADDLE_GOAL_OFFSET - PADDLE_WIDTH - BALL_SIZE);
 
-    return ballYWithinPaddle && player === Player.LEFT
+    return ballYWithinPaddle && (player === Player.LEFT
             ? ballXBehindLeftPaddle
-            : ballXBehindRightPaddle;
+            : ballXBehindRightPaddle);
 }
 
 export function checkBallGoalColision(ball: BallData): Player | null {

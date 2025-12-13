@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function useKeys<T extends readonly string[]>(
     keys: T
-): Record<T[number], boolean> {
-    const [keysMap, setKeysMap] = useState({} as Record<T[number], boolean>);
+): React.RefObject<Record<T[number], boolean>> {
+    const keysRef = useRef({} as Record<T[number], boolean>);
 
     function updatekeys(ev: KeyboardEvent) {
         const k = ev.code;
         if (keys.includes(k)) {
             ev.preventDefault();
-            setKeysMap(prev => {
-                const final = prev;
-                final[k as T[number]] = ev.type === "keydown";
-                return final;
-            });
+            keysRef.current[k as T[number]] = ev.type === "keydown";
         }
     }
 
@@ -27,5 +23,5 @@ export default function useKeys<T extends readonly string[]>(
         }
     }, []);
 
-    return keysMap;
+    return keysRef;
 }
