@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BOARD_HEIGHT, PADDLE_HEIGHT } from "../config";
+import { BOARD_HEIGHT, PADDLE_HEIGHT, PADDLE_SPEED } from "../config";
 
 export const Player = {
     LEFT: 1,
@@ -8,7 +8,7 @@ export const Player = {
 
 export type Player = (typeof Player)[keyof typeof Player];
 
-export default function usePaddle(player: Player) {
+export default function usePaddle() {
     const [pos, setpos] = useState(BOARD_HEIGHT / 2 - PADDLE_HEIGHT / 2);
     const [score, setscore] = useState(0);
 
@@ -25,5 +25,13 @@ export default function usePaddle(player: Player) {
         setpos(prev => limitpos(cb(prev)));
     }
 
-    return { pos, updatepos, score, setscore };
+    function move(dir: "up" | "down", delta: number) {
+        updatepos(y => y + PADDLE_SPEED * delta * (dir === "up" ? -1 : 1));
+    }
+
+    function onScored() {
+        setscore(s => s + 1);
+    }
+
+    return { pos, move, score, onScored };
 }
