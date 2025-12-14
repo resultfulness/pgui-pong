@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import Board from "./components/Board";
 import Controls from "./components/Controls";
 import Timer from "./components/Timer";
+import VictoryScreen from "./components/VictoryScreen";
 import Ball from "./components/game_objects/Ball";
 import Paddle from "./components/game_objects/Paddle";
 import useBall from "./hooks/use-ball";
 import usePaddle, { Player } from "./hooks/use-paddle";
 import useKeys from "./hooks/use-keys";
-import { GAME_TIME } from "./config";
+import { GAME_SCORE_TO_WIN, GAME_TIME } from "./config";
 import {
     checkBallGoalColision,
     checkBallPaddleCollision,
@@ -17,6 +18,7 @@ import {
 
 export default function Game() {
     const [time, settime] = useState(GAME_TIME);
+    const [winner, setwinner] = useState<Player | null>(null);
     const pauseref = useRef(true);
 
     const { ballref, resetball, updateball, xbounceball, ybounceball } = useBall();
@@ -100,10 +102,28 @@ export default function Game() {
         return () => cancelAnimationFrame(animationId);
     }, []);
 
-    function togglePause() {
+    let togglePause = () => {
+        if (time <= 0 || winner !== null) return;
         pauseref.current = !pauseref.current;
         rerender(r => r + 1);
     }
+
+    useEffect(() => {
+        if (time <= 0) {
+            pauseref.current = true;
+            rerender(r => r + 1);
+        }
+        if (left.scoreref.current >= GAME_SCORE_TO_WIN) {
+            pauseref.current = true;
+            rerender(r => r + 1);
+            setwinner(Player.LEFT);
+        }
+        if (right.scoreref.current >= GAME_SCORE_TO_WIN) {
+            pauseref.current = true;
+            rerender(r => r + 1);
+            setwinner(Player.RIGHT);
+        }
+    }, [time]);
 
     return <div className="game">
         <Timer time={time} settime={settime} paused={pauseref.current} />
@@ -111,6 +131,7 @@ export default function Game() {
             <Ball x={ballref.current.x} y={ballref.current.y} />
             <Paddle pos={left.posref.current} side="left" />
             <Paddle pos={right.posref.current} side="right" />
+            {winner && <VictoryScreen player={winner} />}
         </Board>
         <Controls
             handlePause={() => togglePause()}

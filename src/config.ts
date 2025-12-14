@@ -1,5 +1,6 @@
 export const
     GAME_TIME = 5 * 60,
+    GAME_SCORE_TO_WIN = 5,
 
     BOARD_WIDTH = 640,
     BOARD_HEIGHT = 480,

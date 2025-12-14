@@ -34,18 +34,23 @@ export default function useBall() {
     });
 
     function resetball(server: Player) {
-        const { vx, vy } = randomizeDirection();
-        let mvx = server * vx;
-        if (mvx < 0) {
-            mvx *= -1;
-        }
-
         ballref.current = {
             x: BOARD_WIDTH / 2 - BALL_SIZE / 2,
             y: BOARD_HEIGHT / 2 - BALL_SIZE / 2,
-            vx: mvx,
-            vy,
+            vx: 0,
+            vy: 0,
         }
+
+        setTimeout(() => {
+            const { vx, vy } = randomizeDirection();
+            let mvx = server * vx;
+            if (mvx < 0) {
+                mvx *= -1;
+            }
+
+            ballref.current.vx = mvx;
+            ballref.current.vy = vy;
+        }, 1000);
     }
 
     function updateball(delta: number) {
